@@ -11,13 +11,15 @@ const userSchema = new mongoose.Schema({
     lastname: {
         type: String,
         // required: true,
+        default: "",    
         minLength: [3, "last Name must be at least 3 characters"]
     },
     email: {
         type: String,
         required: true,
         unique: true,
-        minLength: [5, "Email must be at least 3 characters"]
+        lowercase:true,
+        minLength: [5, "Email must be at least 5 characters"]
     }, 
     password: {
         type: String,
@@ -30,7 +32,7 @@ const userSchema = new mongoose.Schema({
 
 })
 
-userSchema.methods.generatedAuthToken = function () {
+userSchema.methods.generateAuthToken = function () {
     const token = jwt.sign({_id: this._id}, process.env.JWT_SECRET);
     return token;
 }
@@ -38,10 +40,10 @@ userSchema.methods.comparePassword = async function (password){
     return await bcrypt.compare(password, this.password);
 }
 
-userSchema.statics.hashedPassword = async function (password){
+userSchema.statics.hashPassword = async function (password){
     return await bcrypt.hash(password, 10)
 }
 
-const userModel = mongoose.model('User', userSchema);
+const userModel = mongoose.model('user', userSchema);
 
 module.exports = userModel;

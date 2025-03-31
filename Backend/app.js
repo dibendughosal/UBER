@@ -16,6 +16,6 @@ app.get("/", (req,res)=>{
     res.send("<h1>Welcome from App.js</h1>")
 })
 
-app.use('/user', userRoutes)
+app.use('/users', userRoutes)
 
 module.exports = app;
