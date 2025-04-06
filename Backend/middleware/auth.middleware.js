@@ -14,8 +14,8 @@ module.exports.authUser = async(req, res, next) => {
         const user = await userModel.findById(decoded._id)
 
         req.user = user;
-
         return next();
+        
     } catch (error) {
         return res.status(401).json({ message : 'Unauthorized'});
     }

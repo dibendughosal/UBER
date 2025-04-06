@@ -13,7 +13,6 @@ module.exports.registerUser = async (req, res, next) => {
 
         let { fullname, email, password } = req.body;
 
-        // ✅ Check if all fields are provided
         if (!fullname || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
         }
@@ -21,9 +20,8 @@ module.exports.registerUser = async (req, res, next) => {
         let firstname = "";
         let lastname = "";
 
-        // ✅ Handle both string and object formats for `fullname`
         if (typeof fullname === "string") {
-            [firstname, lastname = ""] = fullname.split(" ");
+            [firstname, lastname = ""] = fullname.trim().split(" ");
         } else if (typeof fullname === "object" && fullname.firstname && fullname.lastname) {
             firstname = fullname.firstname;
             lastname = fullname.lastname;
@@ -31,19 +29,19 @@ module.exports.registerUser = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid fullname format" });
         }
 
-        // ✅ Hash the password
+        // Hash the password
         const hashPassword = await userModel.hashPassword(password);
         console.log("Hashed Password Before Saving:", hashPassword);
 
-        // ✅ Save the user
+        // ✅ Save the user (pass correct fields)
         const user = await userService.createUser({
-            fullname: firstname,
+            firstname,
             lastname,
             email: email.toLowerCase(),
             password: hashPassword
         });
 
-        // ✅ Generate token
+        // Generate token
         const token = user.generateAuthToken();
         res.status(201).json({
             token,
@@ -53,7 +51,6 @@ module.exports.registerUser = async (req, res, next) => {
         next(error);
     }
 };
-
 
 
 module.exports.loginUser = async (req, res, next) => {
@@ -81,6 +78,9 @@ module.exports.loginUser = async (req, res, next) => {
         }
 
         const token = user.generateAuthToken();
+
+        res.cookie('token', token);
+
         res.status(200).json({ 
             token, 
             user: { _id: user._id, fullname: user.fullname, email: user.email } 
